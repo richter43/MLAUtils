@@ -1,1 +1,1 @@
-ching material for MLinAPP @ Polito
+Teaching material for MLinAPP @ Polito
