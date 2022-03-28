@@ -6,5 +6,8 @@ seaborn
 jupyter
 jupyter_contrib_nbextensions
 jupyterthemes
+tensorflow
+jedi==0.17.2
+openslide-python
 tensorflow-datasets
 tensorflow-probability==0.15.0
