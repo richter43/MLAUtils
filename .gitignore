@@ -15,6 +15,7 @@ PROVA/
 crop_obj.pickle
 .idea/*
 params/
+models*
 #!.idea/runConfigurations/*.xml
 
 # Vim
