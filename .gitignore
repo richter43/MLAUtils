@@ -15,6 +15,7 @@ PROVA/
 crop_obj.pickle
 .idea/*
 params/
+crc_images/
 models*
 #!.idea/runConfigurations/*.xml
 

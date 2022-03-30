@@ -46,10 +46,10 @@ learning_rate = 0.001
 batch_size = 64
 class_dict = {
     "AC": 0,
-    "H": 1,
-    "AD": 2
+    "AD": 1,
+    "H": 2
 }
-checkpoint_filepath = './models_crc/checkpoint_crc_3_cls_224'                                                                                                                                                             
+checkpoint_filepath = './models_crc/checkpoint_crc_3_cls'
 # ----------------------
 num_classes = len(class_dict.keys())
 wsi_file_paths = glob(os.path.join(rootdir_wsi, '*.svs'))
@@ -59,47 +59,21 @@ df = pd.DataFrame([os.path.basename(slide).split('.')[0].split('_') for slide in
                                                                                                            "Dysplasia",
                                                                                                            "#-Annotation"])
 df['Path'] = wsi_file_paths
-splitter = model_selection.GroupShuffleSplit(test_size=.35, n_splits=1, random_state=7)
-split = splitter.split(df, groups=df['Patient'])
-train_inds, test_inds = next(split)
-df_train = df.iloc[train_inds]
-df_test = df.iloc[test_inds]
-wsi_file_paths_test = df_test['Path']
-wsi_labels_test = df_test['Type']
-wsi_file_paths_train = df_train['Path']
-wsi_labels_train = df_train['Type']
-
-
-# In[ ]:
-
-
-print("Common patients between train and test: {}".format(len(set(df['Patient'].iloc[train_inds]).intersection(set(df['Patient'].iloc[test_inds])))))
-
-
-# In[ ]:
-
+wsi_file_paths = df['Path']
+wsi_labels = df['Type']
 
 print("Train")
-dataset_train = DatasetWSI(wsi_file_paths_train,
-                           wsi_labels_train,
-                           class_dict,
-                           batch_size=batch_size,
-                           tile_size=tile_size,
-                           overlap=6).make_dataset()
-print("Test")
-dataset_test = DatasetWSI(wsi_file_paths_test,
-                          wsi_labels_test,
-                          class_dict,
-                          batch_size=batch_size,
-                          tile_size=tile_size,
-                          overlap=6).make_dataset()
-
-
-# In[ ]:
-
+dataset_wsi = DatasetWSI(wsi_file_paths,
+                         wsi_labels,
+                         class_dict,
+                         batch_size=batch_size,
+                         tile_size=tile_size,
+                         overlap=6).make_dataset()
+for batch_x, batch_y in dataset_wsi.take(1):
+    input_shape = batch_x[0].shape
 
 inv_class_dict = {v: k for k, v in class_dict.items()}
-for batch_x, batch_y in dataset_train.take(2):
+for batch_x, batch_y in dataset_wsi.take(2):
     fig, ax = plt.subplots(5, 5, figsize=(18, 18))
     ax = ax.ravel()
     j = 0
@@ -109,35 +83,39 @@ for batch_x, batch_y in dataset_train.take(2):
         input_shape = img.shape
         ax[j].imshow(img)
         ax[j].axis('off')
-        ax[j].set_title("Class: {}".format(inv_class_dict[int(np.argmax(label))]))
+        ax[j].set_title("Class: {} - {}".format(inv_class_dict[int(np.argmax(label))], label))
         j += 1
+fig.savefig("images.pdf")
 
 
-# In[ ]:
+data_dir = "../crc_images/train"
+train_ds = tf.keras.utils.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset="training",
+    label_mode="categorical",
+    seed=123,
+    image_size=(input_shape[0], input_shape[1]),
+    batch_size=64)
 
+val_ds = tf.keras.utils.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset="validation",
+    label_mode="categorical",
+    seed=123,
+    image_size=(input_shape[0], input_shape[1]),
+    batch_size=64)
 
-inv_class_dict = {v: k for k, v in class_dict.items()}
-for batch_x, batch_y in dataset_test.take(5):
-    fig, ax = plt.subplots(5, 5, figsize=(18, 18))
-    ax = ax.ravel()
-    j = 0
-    for image, label in zip(batch_x[:25], batch_y[:25]):
-        label = label.numpy()
-        img = image.numpy()
-        input_shape = img.shape
-        ax[j].imshow(img)
-        ax[j].axis('off')
-        ax[j].set_title("Class: {}".format(inv_class_dict[int(np.argmax(label))]))
-        j += 1
-
-
-# In[ ]:
-
+data_dir = "../crc_images/test"
+test_ds = tf.keras.utils.image_dataset_from_directory(
+    data_dir,
+    label_mode="categorical",
+    seed=123,
+    image_size=(input_shape[0], input_shape[1]),
+    batch_size=64)
 
 augmentation_block = [
-    tf.keras.layers.RandomCrop(int(tile_size-tile_size*0.1), 
-                               int(tile_size-tile_size*0.1)),
-    tf.keras.layers.Resizing(224, 224),
     tf.keras.layers.RandomContrast(0.1),
     tf.keras.layers.RandomFlip("horizontal_and_vertical"),
     tf.keras.layers.RandomZoom(
@@ -145,46 +123,30 @@ augmentation_block = [
         width_factor=(-0.05, -0.15)),
     tf.keras.layers.RandomRotation(0.3),
 ]
-
-
-# In[ ]:
-
-
 inputs = tf.keras.Input(input_shape)
 x =  tf.keras.applications.resnet50.preprocess_input(inputs)
+x = tf.keras.layers.Resizing(64, 64)(x)
 for layer in augmentation_block:
-    x = layer(x)
+    x = layer(x, training=False)
 base_model = tf.keras.applications.ResNet50(include_top=False, weights="imagenet")
 for j, layer in enumerate(base_model.layers[:100]):
-    print(layer.name, j)
     layer.trainable = False
 x = base_model(x, training=False)
 x = tf.keras.layers.GlobalAveragePooling2D()(x)
 x = tf.keras.layers.Dense(num_classes, activation="softmax")(x)
 model = tf.keras.models.Model(inputs=inputs, outputs=x)
-# model = ResNet((input_shape[0], input_shape[1]), 
-#                num_classes=num_classes, 
-#                augment=True)
-
-
-# In[ ]:
-
 
 model.summary()
 
-
-# In[ ]:
-
-
-checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(                                                                                                                                          
-    filepath=checkpoint_filepath,                                                                                                                                                                        
-    save_weights_only=True,                                                                                                                                                                              
-    monitor='accuracy',                                                                                                                                                                              
-    mode='max',                                                                                                                                                                                          
+checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_filepath,
+    save_weights_only=True,
+    monitor='val_accuracy',
+    mode='max',
     save_best_only=True)
 
 lr_callback = tf.keras.callbacks.ReduceLROnPlateau(
-    monitor='accuracy',
+    monitor='val_accuracy',
     factor=0.1,
     patience=7,
     verbose=0,
@@ -195,7 +157,7 @@ lr_callback = tf.keras.callbacks.ReduceLROnPlateau(
 )
 
 early_stop_callback = tf.keras.callbacks.EarlyStopping(
-    monitor="accuracy",
+    monitor="val_accuracy",
     min_delta=0.001,
     patience=10,
     verbose=0,
@@ -203,30 +165,15 @@ early_stop_callback = tf.keras.callbacks.EarlyStopping(
     restore_best_weights=True,
 )
 
-
-# In[ ]:
-
-
 optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
 loss = tf.keras.losses.categorical_crossentropy
 model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
 
-
-# In[ ]:
-
-
-model.fit(dataset_train, validation_data=dataset_test,
+model.fit(train_ds, validation_data=train_ds,
           epochs=epochs, callbacks=[checkpoint_callback, lr_callback, early_stop_callback])
 
-
-# In[ ]:
-
-
-results = model.evaluate(dataset_test)
-
-
-# In[ ]:
-
-
-print("Accuracy: {}".format(results[1]))
+results = model.evaluate(test_ds)
+print("Accuracy on test: {}".format(results[1]))
+results = model.evaluate(dataset_wsi)
+print("Accuracy on WSIs: {}".format(results[1]))
 
