@@ -21,6 +21,7 @@ models*
 
 # Vim
 *.swp
+*.pdf
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
