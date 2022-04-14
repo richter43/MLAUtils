@@ -12,6 +12,7 @@ src/*
 !src/*.py
 !src/*.ipynb
 !src/models
+!src/*.mplstyle
 PROVA/
 crop_obj.pickle
 .idea/*
