@@ -3,10 +3,12 @@
 
 ### Specific folders ###
 MyVenv
+ood.npy
 data/
 CIFAR-10-C/
 results_*
 results/
+confidence_data_all_corruptions.pickle
 cifar100_tuning/
 src/*
 !src/*.py
