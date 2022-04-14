@@ -4,6 +4,7 @@
 ### Specific folders ###
 MyVenv
 data/
+CIFAR-10-C/
 results_*
 results/
 cifar100_tuning/
