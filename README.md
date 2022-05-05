@@ -13,6 +13,7 @@ This work is licensed under a
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
 [cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
 
-Please the following paper if you find this material useful for your research:
-Ponzio, Francesco, et al. "Exploiting “Uncertain” Deep Networks for Data Cleaning in Digital Pathology."
-2020 IEEE 17th International Symposium on Biomedical Imaging (ISBI). IEEE, 2020.
+Please cite the following paper if you find this material useful for your research:
+
+[Ponzio, Francesco, et al. "Exploiting “Uncertain” Deep Networks for Data Cleaning in Digital Pathology."
+2020 IEEE 17th International Symposium on Biomedical Imaging (ISBI). IEEE, 2020.](https://ieeexplore.ieee.org/abstract/document/9098605)
