@@ -1,5 +1,6 @@
-Teaching material belonging to [Politecnico di Torino]: (https://www.polito.it/)
-Corresponding author: [Francesco Ponzio]: (https://eda.polito.it/francesco-ponzio/)
+Teaching material belonging to [Politecnico di Torino](https://www.polito.it/)
+
+Corresponding author: [Francesco Ponzio](https://eda.polito.it/francesco-ponzio/)
 
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
