@@ -10,4 +10,4 @@ tensorflow
 jedi==0.17.2
 openslide-python
 tensorflow-datasets
-tensorflow-probability==0.15.0
+tensorflow-probability==0.14.1 
