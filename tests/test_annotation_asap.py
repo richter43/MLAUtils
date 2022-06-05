@@ -1,13 +1,18 @@
 import unittest
+import os
 from src.annotation_utils_asap import *
 import matplotlib.pyplot as plt
 from typing import Optional
 from openslide import OpenSlide
+import json
 
+module_dir = os.path.dirname(__file__)
+with open(os.path.join(module_dir, "paths.json")) as f:
+    paths_json = json.load(f)
+    XML_FILENAME = paths_json['XML_FILENAME']
+    SLIDE_FILENAME = paths_json['SLIDE_FILENAME']
 
-# Uncomment and define the file's information here
-SLIDE_FILENAME = "/home/foxtrot/Datasets/MLA/ccRCC/H19.754.IHC.ccRCC.scn"
-XML_FILENAME = "/home/foxtrot/Datasets/MLA/ccRCC/XML/H19.754.IHC.ccRCC.xml"
+# No assertions are established given that a standard testing image should be agreed upon
 
 class TestAnnotationAsap(unittest.TestCase):
 
