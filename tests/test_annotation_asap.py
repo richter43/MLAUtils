@@ -6,11 +6,10 @@ from openslide import OpenSlide
 
 
 # Uncomment and define the file's information here
-# SLIDE_FILENAME = 
-# XML_FILENAME = 
+SLIDE_FILENAME = "/home/foxtrot/Datasets/MLA/ccRCC/H19.754.IHC.ccRCC.scn"
+XML_FILENAME = "/home/foxtrot/Datasets/MLA/ccRCC/XML/H19.754.IHC.ccRCC.xml"
 
-
-class TestFrontier(unittest.TestCase):
+class TestAnnotationAsap(unittest.TestCase):
 
     slide: Optional[OpenSlide] = None
 
@@ -32,9 +31,5 @@ class TestFrontier(unittest.TestCase):
         downsample = 0.1
         mask = get_annotation_mask_asap(XML_FILENAME, self.slide, downsample)
         img = overlap_asap(self.slide, mask, downsample)
-
-    # def tearDown(self) -> None:
-    #     self.frontier._purge_queue()
-        
-    # def tearDownClass() -> None:
-    #     pass
+        plt.imshow(img)
+        plt.show()
