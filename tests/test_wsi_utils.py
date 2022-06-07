@@ -20,7 +20,7 @@ class TestWSIUtils(unittest.TestCase):
     def setUpClass(cls):
         cls.filepaths = [ccRCC_FILEPATH]
         cls.xml_paths = [XML_FILENAME]
-        cls.tile_size = 1024
+        cls.tile_size = 224
         cls.slide_metadata_list = [SlideMetadata(wsi_path, xml_path=xml_path, label=get_label_from_path(wsi_path)) for wsi_path, xml_path in zip(cls.filepaths, cls.xml_paths)]
 
     def test_dataset_manager(self):
